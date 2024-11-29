@@ -1,0 +1,58 @@
+// prisma/schema.prisma
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id             Int             @id @default(autoincrement())
+  name           String
+  email          String          @unique
+  password       String
+  createdAt      DateTime        @default(now())
+  flashcardSets  FlashcardSet[]  @relation("UserFlashcardSets")
+  hiddenCards    HiddenCard[]
+  reviews        Review[]
+}
+
+model FlashcardSet {
+  id          Int          @id @default(autoincrement())
+  title       String
+  description String?
+  owner       User         @relation("UserFlashcardSets", fields: [ownerId], references: [id])
+  ownerId     Int
+  flashcards  Flashcard[]
+  reviews     Review[]
+  createdAt   DateTime     @default(now())
+}
+
+model Flashcard {
+  id           Int          @id @default(autoincrement())
+  question     String
+  answer       String
+  flashcardSet FlashcardSet @relation(fields: [flashcardSetId], references: [id])
+  flashcardSetId Int
+}
+
+model HiddenCard {
+  id          Int    @id @default(autoincrement())
+  user        User   @relation(fields: [userId], references: [id])
+  userId      Int
+  flashcardId Int
+}
+
+model Review {
+  id          Int          @id @default(autoincrement())
+  rating      Int          @default(5)
+  comment     String?
+  user        User         @relation(fields: [userId], references: [id])
+  userId      Int
+  flashcardSet FlashcardSet @relation(fields: [flashcardSetId], references: [id])
+  flashcardSetId Int
+  createdAt   DateTime     @default(now())
+}
