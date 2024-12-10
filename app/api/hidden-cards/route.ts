@@ -29,9 +29,11 @@ export async function GET(request: Request) {
     }
 
     try {
+        const existingUser = await prisma.user.findUnique({ where: { email:session.user.email } });
+        const userId = existingUser?.id;
         // Fetch all hidden card IDs for the authenticated user
         const hiddenCards: HiddenCard[] = await prisma.hiddenCard.findMany({
-            where: { userId: session.user.id },
+            where: { userId: userId },
             select: { flashcardId: true },
         });
 
@@ -80,10 +82,13 @@ export async function POST(request: Request) {
     }
 
     try {
+
+        const existingUser = await prisma.user.findUnique({ where: { email:session.user.email } });
+        const userId = existingUser?.id;
         // Check if the flashcard is already hidden by the user
         const existingHiddenCard: HiddenCard | null = await prisma.hiddenCard.findFirst({
             where: {
-                userId: session.user.id,
+                userId: userId,
                 flashcardId: flashcardId,
             },
         });
@@ -96,7 +101,7 @@ export async function POST(request: Request) {
         // Create a new hidden card entry
         const newHiddenCard: HiddenCard = await prisma.hiddenCard.create({
             data: {
-                userId: session.user.id,
+                userId: userId,
                 flashcardId: flashcardId,
             },
         });
@@ -150,10 +155,13 @@ export async function DELETE(request: Request) {
     }
 
     try {
+
+        const existingUser = await prisma.user.findUnique({ where: { email:session.user.email } });
+        const userId = existingUser?.id;
         // Delete the hidden card entry if it exists
         const deleted = await prisma.hiddenCard.deleteMany({
             where: {
-                userId: session.user.id,
+                userId: userId,
                 flashcardId: flashcardId,
             },
         });

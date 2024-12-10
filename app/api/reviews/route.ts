@@ -31,11 +31,14 @@ export async function POST(request: Request) {
         // Authenticate the user
         const session = await getServerSession(authOptions);
 
-        if (!session || !session.user || !session.user.id) {
+        console.log("session", session)
+
+        if (!session || !session.user ) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const userId = session.user.id;
+        const existingUser = await prisma.user.findUnique({ where: { email:session.user.email } });
+        const userId = existingUser?.id;
 
         // Check if the user has already reviewed this set
         const existingReview = await prisma.review.findFirst({
