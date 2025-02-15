@@ -77,3 +77,54 @@ export async function GET(request: Request) {
 
     return NextResponse.json(setsWithRatings);
 }
+
+export async function PUT(request: Request) {
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id, title, description, flashcards } = await request.json();
+
+    if (!id) {
+        return NextResponse.json({ error: "Flashcard set ID is required" }, { status: 400 });
+    }
+
+    // Fetch the flashcard set to check ownership
+    const flashcardSet = await prisma.flashcardSet.findUnique({
+        where: { id },
+        include: { owner: true },
+    });
+
+    if (!flashcardSet) {
+        return NextResponse.json({ error: "Flashcard set not found" }, { status: 404 });
+    }
+
+    console.log(flashcardSet.owner.email, session.user.email)
+    if (flashcardSet.owner.email !== session.user.email) {
+        return NextResponse.json({ error: "Forbidden: You do not own this flashcard set" }, { status: 403 });
+    }
+
+    // Update the flashcard set
+    const updatedSet = await prisma.flashcardSet.update({
+        where: { id },
+        data: {
+            ...(title && { title }),
+            ...(description && { description }),
+            ...(flashcards &&
+                Array.isArray(flashcards) && {
+                    flashcards: {
+                        deleteMany: {}, // Deletes all existing flashcards first
+                        create: flashcards.map((card: any) => ({
+                            question: card.question,
+                            answer: card.answer,
+                        })),
+                    },
+                }),
+        },
+        include: { flashcards: true },
+    });
+
+    return NextResponse.json(updatedSet, { status: 200 });
+}

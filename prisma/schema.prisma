@@ -26,8 +26,8 @@ model FlashcardSet {
   description String?
   owner       User         @relation("UserFlashcardSets", fields: [ownerId], references: [id])
   ownerId     Int
-  flashcards  Flashcard[]
-  reviews     Review[]
+  flashcards  Flashcard[]  @relation(onDelete: Cascade)
+  reviews     Review[]     @relation(onDelete: Cascade)
   createdAt   DateTime     @default(now())
 }
 

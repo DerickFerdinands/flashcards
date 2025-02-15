@@ -29,23 +29,47 @@ export async function GET(request: Request) {
     }
 
     try {
-        const existingUser = await prisma.user.findUnique({ where: { email:session.user.email } });
-        const userId = existingUser?.id;
-        // Fetch all hidden card IDs for the authenticated user
-        const hiddenCards: HiddenCard[] = await prisma.hiddenCard.findMany({
-            where: { userId: userId },
-            select: { flashcardId: true },
+        const existingUser = await prisma.user.findUnique({
+            where: { email: session.user.email },
         });
 
-        const hiddenCardIds = hiddenCards.map((hc) => hc.flashcardId);
-        console.log("Fetched hidden card IDs:", hiddenCardIds);
+        if (!existingUser) {
+            return NextResponse.json({ error: "User not found" }, { status: 404 });
+        }
 
-        return NextResponse.json(hiddenCardIds, { status: 200 });
+        // Fetch hidden cards (only flashcard IDs)
+        const hiddenCards = await prisma.hiddenCard.findMany({
+            where: { userId: existingUser.id },
+            select: { flashcardId: true }, // Only get the flashcardId
+        });
+
+        if (!hiddenCards.length) {
+            return NextResponse.json([], { status: 200 }); // No hidden cards found
+        }
+
+        const hiddenCardIds = hiddenCards.map((hc) => hc.flashcardId);
+
+        // Fetch flashcard details for those IDs
+        const flashcards = await prisma.flashcard.findMany({
+            where: { id: { in: hiddenCardIds } }, // Get all flashcards matching the IDs
+            select: {
+                id: true,
+                question: true,
+                answer: true,
+                flashcardSetId: true, // Optional
+            },
+        });
+
+        console.log("Fetched hidden flashcards:", flashcards);
+
+        return NextResponse.json(flashcards, { status: 200 });
     } catch (error) {
         console.error("Error in GET /api/hidden-cards:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
+
+
 
 export async function POST(request: Request) {
     console.log("Received POST request to /api/hidden-cards");

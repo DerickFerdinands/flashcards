@@ -4,8 +4,9 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Rating } from "@/components/ui/rating";
+
 import { Review } from "@/types/flashcard";
+import {Rating} from "@/components/flashcard/rating";
 
 interface ReviewFormProps {
     flashcardSetId: number;
@@ -29,28 +30,39 @@ export function ReviewForm({ flashcardSetId, existingReview, onSubmit }: ReviewF
     };
 
     return (
-        <Card>
+        <Card className="w-full">
             <CardHeader>
                 <CardTitle>Leave a Review</CardTitle>
             </CardHeader>
             <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Rating</label>
-                        <Rating value={rating} onChange={setRating} />
+                        <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                            Rating
+                        </label>
+                        <Rating
+                            value={rating}
+                            onChange={setRating}
+                            className="mt-2"
+                        />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Comment</label>
+                        <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                            Comment
+                        </label>
                         <Textarea
                             value={comment}
                             onChange={(e) => setComment(e.target.value)}
                             placeholder="Share your thoughts about this flashcard set..."
-                            className="resize-none"
-                            rows={3}
+                            className="resize-none min-h-[100px]"
                         />
                     </div>
-                    <Button type="submit" disabled={isSubmitting}>
-                        {existingReview ? "Update Review" : "Submit Review"}
+                    <Button
+                        type="submit"
+                        className="w-full"
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting ? "Submitting..." : (existingReview ? "Update Review" : "Submit Review")}
                     </Button>
                 </form>
             </CardContent>

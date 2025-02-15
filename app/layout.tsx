@@ -3,6 +3,7 @@
 import Providers from "./providers";
 import "./globals.css";
 import { Metadata } from "next";
+import {Navbar} from "@/components/navbar";
 
 export const metadata: Metadata = {
     title: "TestVar",
@@ -18,6 +19,7 @@ export default function RootLayout({
         <html lang="en">
         <body>
         <Providers>
+            <Navbar />
             {children}
         </Providers>
         </body>
