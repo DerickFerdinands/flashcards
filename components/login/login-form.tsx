@@ -38,6 +38,20 @@ export function LoginForm() {
         }
     };
 
+    // Handle Google login click
+    const handleGoogleLogin = async () => {
+        setIsLoading(true);
+        const res = await signIn("google", { redirect: false });
+
+        if (res?.ok) {
+            router.push("/");
+        } else {
+            console.error("Google sign-in failed");
+        }
+
+        setIsLoading(false);
+    };
+
     return (
         <form onSubmit={handleSubmit}>
             <Card className="w-full">
@@ -79,6 +93,20 @@ export function LoginForm() {
                         )}
                         Sign In
                     </Button>
+
+                    {/* Google Login Button */}
+                    <Button
+                        className="w-full bg-blue-500 text-white"
+                        type="button"
+                        disabled={isLoading}
+                        onClick={handleGoogleLogin}
+                    >
+                        {isLoading && (
+                            <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                        )}
+                        Sign In with Google
+                    </Button>
+
                     <p className="text-center text-sm text-muted-foreground">
                         Don't have an account?{" "}
                         <Button variant="link" className="p-0" onClick={() => router.push("/register")}>

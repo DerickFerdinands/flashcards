@@ -3,8 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import {LoginForm} from "@/components/login/login-form";
-
+import { LoginForm } from "@/components/login/login-form";
 
 export default function Login() {
     const { data: session, status } = useSession();

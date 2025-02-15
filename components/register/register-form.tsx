@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Icons } from "@/components/ui/icons";
+// import { Icons } from "@/components/ui/icons";
+import { signIn } from "next-auth/react"; // Import next-auth signIn method
 
 export function RegisterForm() {
     const [name, setName] = useState("");
@@ -37,6 +38,10 @@ export function RegisterForm() {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleGoogleLogin = () => {
+        signIn("google", { callbackUrl: "/" }); // Sign in with Google, redirect to homepage after success
     };
 
     return (
@@ -92,6 +97,18 @@ export function RegisterForm() {
                         )}
                         Create Account
                     </Button>
+
+                    {/* Google OAuth Button */}
+                    <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={handleGoogleLogin}
+                        disabled={isLoading}
+                    >
+                        {/*<Icons.google className="mr-2 h-4 w-4" />*/}
+                        Sign up with Google
+                    </Button>
+
                     <p className="text-center text-sm text-muted-foreground">
                         Already have an account?{" "}
                         <Button variant="link" className="p-0" onClick={() => router.push("/login")}>
